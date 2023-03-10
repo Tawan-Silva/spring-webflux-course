@@ -1,5 +1,7 @@
 package br.com.tawandev.webfluxcourse.controller;
 
+import br.com.tawandev.webfluxcourse.model.request.UserRequest;
+import br.com.tawandev.webfluxcourse.model.response.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
