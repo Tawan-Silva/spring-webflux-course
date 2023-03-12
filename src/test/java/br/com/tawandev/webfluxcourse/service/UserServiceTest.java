@@ -5,7 +5,6 @@ import br.com.tawandev.webfluxcourse.mapper.UserMapper;
 import br.com.tawandev.webfluxcourse.model.request.UserRequest;
 import br.com.tawandev.webfluxcourse.repository.UserRepository;
 import br.com.tawandev.webfluxcourse.service.exception.ObjectNotFoundException;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
