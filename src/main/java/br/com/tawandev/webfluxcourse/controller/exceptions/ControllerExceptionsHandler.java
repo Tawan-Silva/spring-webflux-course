@@ -1,6 +1,7 @@
 package br.com.tawandev.webfluxcourse.controller.exceptions;
 
 
+import br.com.tawandev.webfluxcourse.service.exception.ObjectNotFoundException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -12,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import static java.time.LocalDateTime.now;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ControllerAdvice
 public class ControllerExceptionsHandler {
@@ -53,8 +55,23 @@ public class ControllerExceptionsHandler {
         return ResponseEntity.status(BAD_REQUEST).body(Mono.just(error));
     }
 
+    @ExceptionHandler(ObjectNotFoundException.class)
+    ResponseEntity<Mono<StardardError>> duplicateKeyException(
+            ObjectNotFoundException ex, ServerHttpRequest request
+    )
 
-
+    {
+        return ResponseEntity.status(NOT_FOUND)
+                .body(Mono.just(
+                        StardardError.builder()
+                                .timestamp(now())
+                                .status(NOT_FOUND.value())
+                                .error(NOT_FOUND.getReasonPhrase())
+                                .message(ex.getMessage())
+                                .path(request.getPath().toString())
+                                .build()
+                ));
+    }
 
     private String verifyDupkey(String message) {
         if (message.contains("email dup key")) {
