@@ -10,12 +10,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
@@ -32,7 +34,7 @@ class UserServiceTest {
     private UserService service;
 
     @Test
-    void save() {
+    void testSave() {
         UserRequest request = new UserRequest("Tawan", "tawan.tls43@gmail.com", "12345678");
         User entity = User.builder().build();
 
@@ -42,7 +44,7 @@ class UserServiceTest {
         Mono<User> result = service.save(request);
 
         StepVerifier.create(result)
-                .expectNextMatches(Objects::nonNull)
+                .expectNextMatches(user -> user.getClass() == User.class)
                 .expectComplete()
                 .verify();
 
@@ -50,11 +52,21 @@ class UserServiceTest {
     }
 
     @Test
-    void findById() {
+    void testFindById() {
+        when(repository.findById(anyString())).thenReturn(Mono.just(User.builder().build()));
+
+        Mono<User> result = service.findById("123");
+
+        StepVerifier.create(result)
+                .expectNextMatches(user -> user.getClass() == User.class)
+                .expectComplete()
+                .verify();
+
+        Mockito.verify(repository, times(1)).findById(anyString());
     }
 
     @Test
-    void findAll() {
+    void testFindAll() {
     }
 
     @Test
