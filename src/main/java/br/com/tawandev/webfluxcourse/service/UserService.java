@@ -38,7 +38,9 @@ public class UserService {
     }
 
     public Mono<User> update(final String id, final UserRequest request) {
-        return handleNotFound(repository.findById(id), id, User.class);
+        return findById(id)
+                .map(entity -> mapper.toEntity(request, entity))
+                .flatMap(repository::save);
     }
 
     public Mono<User> delete(final String id) {
