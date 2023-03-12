@@ -5,6 +5,7 @@ import br.com.tawandev.webfluxcourse.mapper.UserMapper;
 import br.com.tawandev.webfluxcourse.model.request.UserRequest;
 import br.com.tawandev.webfluxcourse.model.response.UserResponse;
 import br.com.tawandev.webfluxcourse.service.UserService;
+import br.com.tawandev.webfluxcourse.service.exception.ObjectNotFoundException;
 import com.mongodb.reactivestreams.client.MongoClient;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,10 +16,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
+import static java.lang.String.format;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -52,15 +52,15 @@ class UserControllerImplTest {
     void testSaveWithSuccess() {
         UserRequest request = new UserRequest(NAME, EMAIL, PASSWORD);
 
-       when(service.save(any(UserRequest.class))).thenReturn(just(User.builder().build()));
+        when(service.save(any(UserRequest.class))).thenReturn(just(User.builder().build()));
 
-       webTestClient.post().uri("/users")
-               .contentType(APPLICATION_JSON)
-               .body(fromValue(request))
-               .exchange()
-               .expectStatus().isCreated();
+        webTestClient.post().uri("/users")
+                .contentType(APPLICATION_JSON)
+                .body(fromValue(request))
+                .exchange()
+                .expectStatus().isCreated();
 
-     verify(service, times(1)).save(any(UserRequest.class));
+        verify(service, times(1)).save(any(UserRequest.class));
     }
 
     @Test
@@ -106,7 +106,7 @@ class UserControllerImplTest {
 
     @Test
     @DisplayName("Test find All endpoint with success")
-    void findAll() {
+    void testfindAlWithSuccess() {
         final var userResponse = new UserResponse(ID, NAME, EMAIL, PASSWORD);
 
         when(service.findAll()).thenReturn(Flux.just(User.builder().build()));
@@ -128,7 +128,7 @@ class UserControllerImplTest {
 
     @Test
     @DisplayName("Test update endpoint with success")
-    void update() {
+    void testUpdateWithSuccess() {
         UserRequest request = new UserRequest(NAME, EMAIL, PASSWORD);
         final var userResponse = new UserResponse(ID, NAME, EMAIL, PASSWORD);
 
@@ -152,6 +152,28 @@ class UserControllerImplTest {
     }
 
     @Test
-    void delete() {
+    @DisplayName("Test delete endpoint with success")
+    void testDeleteWithSuccess() {
+        when(service.delete(anyString())).thenReturn(just(User.builder().build()));
+
+        webTestClient.delete().uri("/users/" + ID)
+                .exchange()
+                .expectStatus().isOk();
+
+        verify(service, times(1)).delete(anyString());
+    }
+
+    @Test
+    @DisplayName("Test delete endpoint with success")
+    void testDeleteWithNotFoundException() {
+        when(service.delete(anyString())).thenThrow(new ObjectNotFoundException(
+                format("Object not found. Id: %s, Type: %s", ID, User.class.getSimpleName()))
+        );
+
+        webTestClient.delete().uri("/users/" + ID)
+                .exchange()
+                .expectStatus().isNotFound();
+
+        verify(service, times(1)).delete(anyString());
     }
 }
